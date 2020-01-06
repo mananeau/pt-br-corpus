@@ -29,8 +29,16 @@ Sono stati costruiti anche alcuni harmonium con due manuali.
 
 At the time of writing there was 1000400 documents in the ptwiki-dump. =]
 
+Before going to part 3, make sure you have downloaded the `punkt` from nltk. To do so, go in a python shell and type:
 
-3. Now that we have the wikipedia texts, we can start the pre-processing of the files.
+``` 
+import nltk
+nltk.download()
+```
+
+An installation window then appears. Go to the 'Models' tab and select 'punkt' from under the 'Identifier' column. Click download and it will install the necessary files. 
+
+3. Now that we have the wikipedia texts, we can start the pre-processing of the files. 
 
 ```sh
 python scripts/preprocess.py ./data/ptwiki-articles-text/ -o ./data/ptwiki-articles-text-cleaned
