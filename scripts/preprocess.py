@@ -38,7 +38,7 @@ from gensim.utils import grouper
 
 
 # nltk.download('punkt')
-sent_tokenizer = nltk.data.load('tokenizers/punkt/portuguese.pickle')
+sent_tokenizer = nltk.data.load('tokenizers/punkt/german.pickle')
 
 # ##### #
 # Regex #
