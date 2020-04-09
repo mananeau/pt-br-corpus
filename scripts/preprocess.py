@@ -94,22 +94,35 @@ def clean_single_sentence(text):
     text = re_trim.sub(' ', text)
     return text.strip()
 
-def clean_document(document):
+def clean_document(document, split_sentences):
     '''
     Returns a list of sentences for the given document.
     Process the document line by line:
     - Split into multiple sentences using the NLTK Punkt Tokenizer.
     - Remove any senteces with less then 4 words.
     '''
-    for line in document.split('\n'):
-        for sent in sent_tokenizer.tokenize(line):
-            sent = clean_single_sentence(sent)
-            if sent.count(' ') >= 3 and sent[-1] in ['.', '!', '?', ';']:
-                if sent[0:2] == '- ':
-                    sent = sent[2:]
-                elif sent[0] == ' ' or sent[0] == '-':
-                    sent = sent[1:]
-                yield sent
+    if split_sentences:
+      for line in document.split('\n'):
+          for sent in sent_tokenizer.tokenize(line):
+              sent = clean_single_sentence(sent)
+              if sent.count(' ') >= 3 and sent[-1] in ['.', '!', '?', ';']:
+                  if sent[0:2] == '- ':
+                      sent = sent[2:]
+                  elif sent[0] == ' ' or sent[0] == '-':
+                      sent = sent[1:]
+                  yield sent
+    else:
+      for line in document.split('\n'):
+        sent = line
+        sent = clean_single_sentence(sent)
+        if sent.count(' ') >= 3 and sent[-1] in ['.', '!', '?', ';']:
+            if sent[0:2] == '- ':
+                sent = sent[2:]
+            elif sent[0] == ' ' or sent[0] == '-':
+                sent = sent[1:]
+            yield sent       
+        
+      
 
 def read_wiki_documents_compressed(dirname):
     '''
@@ -128,8 +141,8 @@ def read_wiki_documents_compressed(dirname):
                 else:
                     doc += line + b'\n'
 
-def worker_clean_document(jobs):
-    return [clean_document(document.decode('utf-8')) for document in jobs]
+def worker_clean_document(jobs, split_sentences):
+    return [clean_document(document.decode('utf-8'), split_sentences) for document in jobs]
 
 def main():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),
@@ -138,6 +151,8 @@ def main():
     parser.add_argument("input", help="ptwiki-compressed-text-folder")
     parser.add_argument("-o", "--output", default="./data/cleaned/",
                         help="directory for extracted files")
+    parser.add_argument("split_sentences", default=False,help="whether to split sentences")
+
     args = parser.parse_args()
     input_dirname = args.input
     output_dirname = args.output
@@ -155,7 +170,7 @@ def main():
     
     jobs = grouper(documents, job_batch_size)
 
-    for job in pool.imap(worker_clean_document, jobs):
+    for job in pool.imap(worker_clean_document, jobs, args.split_sentences):
         for sentences in job:
             for sentence in sentences:
                 output.write((sentence+'\n').encode('utf-8'))
