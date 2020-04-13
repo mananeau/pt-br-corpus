@@ -94,24 +94,13 @@ def clean_single_sentence(text):
     text = re_trim.sub(' ', text)
     return text.strip()
 
-def clean_document(document, split_sentences):
+def clean_document(document):
     '''
     Returns a list of sentences for the given document.
     Process the document line by line:
     - Split into multiple sentences using the NLTK Punkt Tokenizer.
     - Remove any senteces with less then 4 words.
     '''
-    if split_sentences:
-      for line in document.split('\n'):
-          for sent in sent_tokenizer.tokenize(line):
-              sent = clean_single_sentence(sent)
-              if sent.count(' ') >= 3 and sent[-1] in ['.', '!', '?', ';']:
-                  if sent[0:2] == '- ':
-                      sent = sent[2:]
-                  elif sent[0] == ' ' or sent[0] == '-':
-                      sent = sent[1:]
-                  yield sent
-    else:
       for line in document.split('\n'):
         sent = line
         sent = clean_single_sentence(sent)
@@ -142,7 +131,7 @@ def read_wiki_documents_compressed(dirname):
                     doc += line + b'\n'
 
 def worker_clean_document(jobs, split_sentences):
-    return [clean_document(document.decode('utf-8'), split_sentences) for document in jobs]
+    return [clean_document(document.decode('utf-8')) for document in jobs]
 
 def main():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),
