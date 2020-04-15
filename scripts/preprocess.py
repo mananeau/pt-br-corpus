@@ -101,7 +101,7 @@ def clean_document(document):
     - Split into multiple sentences using the NLTK Punkt Tokenizer.
     - Remove any senteces with less then 4 words.
     '''
-      for line in document.split('\n'):
+    for line in document.split('\n'):
         sent = line
         sent = clean_single_sentence(sent)
         if sent.count(' ') >= 3 and sent[-1] in ['.', '!', '?', ';']:
@@ -130,7 +130,7 @@ def read_wiki_documents_compressed(dirname):
                 else:
                     doc += line + b'\n'
 
-def worker_clean_document(jobs, split_sentences):
+def worker_clean_document(jobs):
     return [clean_document(document.decode('utf-8')) for document in jobs]
 
 def main():
@@ -140,7 +140,6 @@ def main():
     parser.add_argument("input", help="ptwiki-compressed-text-folder")
     parser.add_argument("-o", "--output", default="./data/cleaned/",
                         help="directory for extracted files")
-    parser.add_argument("split_sentences", default=False,help="whether to split sentences")
 
     args = parser.parse_args()
     input_dirname = args.input
@@ -159,7 +158,7 @@ def main():
     
     jobs = grouper(documents, job_batch_size)
 
-    for job in pool.imap(worker_clean_document, jobs, args.split_sentences):
+    for job in pool.imap(worker_clean_document, jobs):
         for sentences in job:
             for sentence in sentences:
                 output.write((sentence+'\n').encode('utf-8'))
