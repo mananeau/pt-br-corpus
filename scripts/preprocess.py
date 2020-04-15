@@ -76,7 +76,7 @@ def clean_single_sentence(text):
     text = re_remove_brackets.sub('', text)
     text = re_changehyphen.sub('-', text)
     text = re_remove_html.sub(' ', text)
-    text = re_transform_numbers.sub('0', text)
+    #text = re_transform_numbers.sub('0', text)
     text = re_transform_url.sub('URL', text)
     text = re_transform_emails.sub('EMAIL', text)
     text = re_quotes_1.sub(r'\1"', text)
